@@ -16,3 +16,8 @@ mybatis:
 logging:
   pattern:
     console: "[%thread] %-5level %logger{36} - %msg%n"
+#session失效时间为2分钟，即登录后2分钟后需重新登录
+server:
+  servlet:
+    session:
+      timeout: 120
