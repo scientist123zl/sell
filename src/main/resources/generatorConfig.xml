@@ -4,8 +4,12 @@
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 
 <generatorConfiguration>
+    <!-- 数据库驱动位置 -->
     <classPathEntry location="E:\javaIdea\mysql-connector-java-5.1.6.jar" />
 
+    <!-- context 是逆向工程的主要配置信息 -->
+    <!-- id：起个名字 -->
+    <!-- targetRuntime：设置生成的文件适用于那个 mybatis 版本 -->
     <context id="DB2Tables" targetRuntime="MyBatis3">
         <!--不是追加xml，只重新生成-->
         <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin" />
@@ -19,6 +23,7 @@
                         password="1234">
         </jdbcConnection>
 
+        <!--非必须，类型处理器，在数据库类型和java类型之间的转换控制-->
         <javaTypeResolver >
             <property name="forceBigDecimals" value="false" />
         </javaTypeResolver>
@@ -44,6 +49,7 @@
 <!--        <table tableName="mall_order" domainObjectName="Order" enableCountByExample="fasle" enableDeleteByExample="fasle" enableSelectByExample="fasle" enableUpdateByExample="fasle"/>-->
 <!--        <table tableName="mall_order_item" domainObjectName="OrderItem" enableCountByExample="fasle" enableDeleteByExample="fasle" enableSelectByExample="fasle" enableUpdateByExample="fasle"/>-->
 <!--        <table tableName="mall_user" domainObjectName="User" enableCountByExample="fasle" enableDeleteByExample="fasle" enableSelectByExample="fasle" enableUpdateByExample="fasle"/>-->
+<!--        <table tableName="mall_category" domainObjectName="Category" enableCountByExample="fasle" enableDeleteByExample="fasle" enableSelectByExample="fasle" enableUpdateByExample="fasle"/>-->
 
     </context>
 </generatorConfiguration>
