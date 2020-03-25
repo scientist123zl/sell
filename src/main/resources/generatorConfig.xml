@@ -50,6 +50,10 @@
 <!--        <table tableName="mall_order_item" domainObjectName="OrderItem" enableCountByExample="fasle" enableDeleteByExample="fasle" enableSelectByExample="fasle" enableUpdateByExample="fasle"/>-->
 <!--        <table tableName="mall_user" domainObjectName="User" enableCountByExample="fasle" enableDeleteByExample="fasle" enableSelectByExample="fasle" enableUpdateByExample="fasle"/>-->
 <!--        <table tableName="mall_category" domainObjectName="Category" enableCountByExample="fasle" enableDeleteByExample="fasle" enableSelectByExample="fasle" enableUpdateByExample="fasle"/>-->
+<!--        <table tableName="mall_product" domainObjectName="Product" enableCountByExample="fasle" enableDeleteByExample="fasle" enableSelectByExample="fasle" enableUpdateByExample="fasle">-->
+<!--            <columnOverride column="detail" jdbcType="VARCHAR"/>-->
+<!--            <columnOverride column="sub_images" jdbcType="VARCHAR"/>-->
+<!--        </table>-->
 
     </context>
 </generatorConfiguration>
