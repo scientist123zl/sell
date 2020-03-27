@@ -54,7 +54,7 @@
 <!--            <columnOverride column="detail" jdbcType="VARCHAR"/>-->
 <!--            <columnOverride column="sub_images" jdbcType="VARCHAR"/>-->
 <!--        </table>-->
-        <table tableName="mall_shipping" domainObjectName="Shipping" enableCountByExample="fasle" enableDeleteByExample="fasle" enableSelectByExample="fasle" enableUpdateByExample="fasle"/>
+<!--        <table tableName="mall_shipping" domainObjectName="Shipping" enableCountByExample="fasle" enableDeleteByExample="fasle" enableSelectByExample="fasle" enableUpdateByExample="fasle"/>-->
 
 
     </context>
