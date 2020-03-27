@@ -1,5 +1,7 @@
 package com.imooc.mall.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.imooc.mall.dao.OrderItemMapper;
 import com.imooc.mall.dao.OrderMapper;
 import com.imooc.mall.dao.ProductMapper;
@@ -48,7 +50,7 @@ public class OrderServiceImpl implements IOrderService {
         if(shipping == null){
             return ResponseVo.error(ResponseEnum.SHIPPING_NOT_EXIST);
         }
-        //通过uid获取购物车,校验（是否有商品，库存)
+        //通过uid获取购物车,校验（是否有商品，库存)  一个用户uid有一个购物车，但一个uid对应地址有多个
         List<Cart> cartList = cartService.listForCart(uid).stream()
                 .filter(Cart::isProductSelected)
                 .collect(Collectors.toList());
@@ -60,6 +62,7 @@ public class OrderServiceImpl implements IOrderService {
                 .map(Cart::getProductId)
                 .collect(Collectors.toSet());
         List<Product> productList = productMapper.selectByProductIdSet(productIdSet);
+        //一个productId对应一个Product对象
        Map<Integer,Product> map = productList.stream()
                .collect(Collectors.toMap(Product::getId,product -> product));
 
@@ -122,6 +125,73 @@ public class OrderServiceImpl implements IOrderService {
         return ResponseVo.success(orderVo);
     }
 
+    @Override
+    public ResponseVo<PageInfo> list(Integer uid, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum,pageSize);
+        List<Order> orderList = orderMapper.selectByUid(uid);
+
+        Set<Long> orderNoSet = orderList.stream().
+                map(Order::getOrderNo).collect(Collectors.toSet());
+        List<OrderItem> orderItemList = orderItemMapper.selectByOrderNoSet(orderNoSet);//查出的是所有的订单详情表
+
+        //一个orderNo对应他自己的所有订单详情列表List<OrderItem>
+        Map<Long,List<OrderItem>> orderItemMap = orderItemList.stream()
+                .collect(Collectors.groupingBy(OrderItem::getOrderNo));
+
+        Set<Integer> shippingIdSet = orderList.stream().
+                map(Order::getShippingId).collect(Collectors.toSet());
+        List<Shipping> shippingList = shippingMapper.selectByIdSet(shippingIdSet);
+        Map<Integer,Shipping> shippingMap=shippingList.stream()
+                .collect(Collectors.toMap(Shipping::getId,shipping -> shipping));
+
+        List<OrderVo> orderVoList=new ArrayList<>();
+        for (Order order : orderList) {
+            OrderVo orderVo = bulidOrderVo(order,
+                    orderItemMap.get(order.getOrderNo()),
+                    shippingMap.get(order.getShippingId()));
+            orderVoList.add(orderVo);
+        }
+        PageInfo pageInfo = new PageInfo<>(orderList);
+        pageInfo.setList(orderVoList);
+
+        return ResponseVo.success(pageInfo);
+    }
+
+    @Override
+    public ResponseVo<OrderVo> detail(Integer uid, Long orderNo) {
+        Order order = orderMapper.selectByOrderNo(orderNo);
+        if(order == null || !order.getUserId().equals(uid)){
+            return ResponseVo.error(ResponseEnum.ORDER_NOT_EXIST);
+        }
+        Set<Long> orderNoSet = new HashSet<>();
+        orderNoSet.add(order.getOrderNo());
+        List<OrderItem> orderItemList = orderItemMapper.selectByOrderNoSet(orderNoSet);//查出的是所有的订单详情表
+
+        Shipping shipping = shippingMapper.selectByPrimaryKey(order.getShippingId());
+
+        OrderVo orderVo = bulidOrderVo(order, orderItemList, shipping);
+        return ResponseVo.success(orderVo);
+    }
+
+    @Override
+    public ResponseVo cancel(Integer uid, Long orderNo) {
+        Order order = orderMapper.selectByOrderNo(orderNo);
+        if(order == null || !order.getUserId().equals(uid)){
+            return ResponseVo.error(ResponseEnum.ORDER_NOT_EXIST);
+        }
+        //只有未付款订单可以取消
+        if(!order.getStatus().equals(OrderStatusEnum.NO_PAY.getCode())){
+            return ResponseVo.error(ResponseEnum.ORDER_STATUS_ERROR);
+        }
+        order.setStatus(OrderStatusEnum.CANCELED.getCode());
+        order.setCloseTime(new Date());
+        int row = orderMapper.updateByPrimaryKeySelective(order);
+        if(row <= 0){
+            return ResponseVo.error(ResponseEnum.ERROR);
+        }
+        return ResponseVo.success();
+    }
+
     private OrderVo bulidOrderVo(Order order, List<OrderItem> orderItemList, Shipping shipping) {
         OrderVo orderVo = new OrderVo();
         BeanUtils.copyProperties(order,orderVo);
@@ -133,9 +203,10 @@ public class OrderServiceImpl implements IOrderService {
         }).collect(Collectors.toList());
         orderVo.setOrderItemVoList(orderItemVoList);
 
-        orderVo.setShippingId(shipping.getId());
-        orderVo.setShippingVo(shipping);
-
+        if(shipping != null){
+            orderVo.setShippingId(shipping.getId());
+            orderVo.setShippingVo(shipping);
+        }
         return orderVo;
     }
 

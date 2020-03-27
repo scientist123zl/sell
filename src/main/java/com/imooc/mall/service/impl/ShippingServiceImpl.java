@@ -21,8 +21,8 @@ public class ShippingServiceImpl implements IshippingService {
     @Autowired
     private ShippingMapper shippingMapper;
 
-    @Override
 
+    //没有建shippingVo，因为需要传给前端的字段与shipping表一样
     public ResponseVo<Map<String, Integer>> add(Integer uid, ShippingForm form) {
         Shipping shipping = new Shipping();
         BeanUtils.copyProperties(form, shipping);
