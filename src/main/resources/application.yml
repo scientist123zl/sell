@@ -31,3 +31,4 @@ server:
     session:
       timeout: 120
 
+
